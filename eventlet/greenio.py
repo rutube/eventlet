@@ -229,12 +229,19 @@ class GreenSocket(object):
         newsock.settimeout(self.gettimeout())
         return newsock
 
-    def makefile(self, *args, **kw):
-        dupped = self.dup()
-        res = _fileobject(dupped, *args, **kw)
-        if hasattr(dupped, "_drop"):
-            dupped._drop()
-        return res
+    if six.PY3:
+        def makefile(self, *args, **kwargs):
+            # WARNING This is a quick and dirty hack to get it more or less working
+            # and be able to figure out how to fix some other stuff in the meantime
+            # This is NOT supposed to be left like this
+            return _original_socket.makefile(self, *args, **kwargs)
+    else:
+        def makefile(self, *args, **kwargs):
+            dupped = self.dup()
+            res = _fileobject(dupped, *args, **kwargs)
+            if hasattr(dupped, "_drop"):
+                dupped._drop()
+            return res
 
     def makeGreenFile(self, *args, **kw):
         warnings.warn("makeGreenFile has been deprecated, please use "
