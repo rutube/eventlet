@@ -621,6 +621,7 @@ class Server(BaseHTTPServer.HTTPServer):
                 self.log_message('(%s) timed out %r' % (self.pid, address))
 
     def log_message(self, message):
+        print(message)
         self.log.write(message + '\n')
 
 
