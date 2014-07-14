@@ -1,16 +1,6 @@
 language: python
 python: 2.7
 env:
-  - TOX_ENV=pep8
-  - TOX_ENV=py26selects
-  - TOX_ENV=py26poll
-  - TOX_ENV=py26epolls
-  - TOX_ENV=py27selects
-  - TOX_ENV=py27poll
-  - TOX_ENV=py27epolls
-  - TOX_ENV=py33selects
-  - TOX_ENV=py33poll
-  - TOX_ENV=py33epolls
   - TOX_ENV=pypyselects
   - TOX_ENV=pypypoll
   - TOX_ENV=pypyepolls
