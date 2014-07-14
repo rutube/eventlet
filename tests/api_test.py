@@ -51,6 +51,7 @@ class TestApi(TestCase):
 
         server = eventlet.listen(('0.0.0.0', 0))
         api.spawn(accept_once, server)
+        api.sleep(0)
 
         client = eventlet.connect(('127.0.0.1', server.getsockname()[1]))
         fd = client.makefile()
