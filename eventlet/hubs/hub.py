@@ -26,15 +26,18 @@ time = patcher.original('time')
 
 g_prevent_multiple_readers = True
 
-READ="read"
-WRITE="write"
+READ = "read"
+WRITE = "write"
+
 
 class FdListener(object):
+
     def __init__(self, evtype, fileno, cb):
         assert (evtype is READ or evtype is WRITE)
         self.evtype = evtype
         self.fileno = fileno
         self.cb = cb
+
     def __repr__(self):
         return "%s(%r, %r, %r)" % (type(self).__name__, self.evtype, self.fileno, self.cb)
     __str__ = __repr__
@@ -43,11 +46,15 @@ class FdListener(object):
 noop = FdListener(READ, 0, lambda x: None)
 
 # in debug mode, track the call site that created the listener
+
+
 class DebugListener(FdListener):
+
     def __init__(self, evtype, fileno, cb):
         self.where_called = traceback.format_stack()
         self.greenlet = greenlet.getcurrent()
         super(DebugListener, self).__init__(evtype, fileno, cb)
+
     def __repr__(self):
         return "DebugListener(%r, %r, %r, %r)\n%sEndDebugFdListener" % (
             self.evtype,
@@ -73,8 +80,8 @@ class BaseHub(object):
     WRITE = WRITE
 
     def __init__(self, clock=time.time):
-        self.listeners = {READ:{}, WRITE:{}}
-        self.secondaries = {READ:{}, WRITE:{}}
+        self.listeners = {READ: {}, WRITE: {}}
+        self.secondaries = {READ: {}, WRITE: {}}
 
         self.clock = clock
         self.greenlet = greenlet.greenlet(self.run)
@@ -98,7 +105,7 @@ class BaseHub(object):
 
     def block_detect_post(self):
         if (hasattr(self, "_old_signal_handler") and
-            self._old_signal_handler):
+                self._old_signal_handler):
             signal.signal(signal.SIGALRM, self._old_signal_handler)
         signal.alarm(0)
 
@@ -116,14 +123,15 @@ class BaseHub(object):
         bucket = self.listeners[evtype]
         if fileno in bucket:
             if g_prevent_multiple_readers:
-                raise RuntimeError("Second simultaneous %s on fileno %s "\
-                     "detected.  Unless you really know what you're doing, "\
-                     "make sure that only one greenthread can %s any "\
-                     "particular socket.  Consider using a pools.Pool. "\
-                     "If you do know what you're doing and want to disable "\
-                     "this error, call "\
-                     "eventlet.debug.hub_prevent_multiple_readers(False)" % (
-                     evtype, fileno, evtype))
+                raise RuntimeError(
+                    "Second simultaneous %s on fileno %s "
+                    "detected.  Unless you really know what you're doing, "
+                    "make sure that only one greenthread can %s any "
+                    "particular socket.  Consider using a pools.Pool. "
+                    "If you do know what you're doing and want to disable "
+                    "this error, call "
+                    "eventlet.debug.hub_prevent_multiple_readers(False)" % (
+                        evtype, fileno, evtype))
             # store off the second listener in another structure
             self.secondaries[evtype].setdefault(fileno, []).append(listener)
         else:
@@ -283,7 +291,7 @@ class BaseHub(object):
     def timer_canceled(self, timer):
         self.timers_canceled += 1
         len_timers = len(self.timers) + len(self.next_timers)
-        if len_timers > 1000 and len_timers/2 <= self.timers_canceled:
+        if len_timers > 1000 and len_timers / 2 <= self.timers_canceled:
             self.timers_canceled = 0
             self.timers = [t for t in self.timers if not t[1].called]
             self.next_timers = [t for t in self.next_timers if not t[1].called]
